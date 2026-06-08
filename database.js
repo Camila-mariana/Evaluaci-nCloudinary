@@ -1,14 +1,14 @@
-import mongoose, {connect} from "mongoose";
-import {config} from "./config.js";
+import mongoose, { connect } from "mongoose";
+import { config } from "./config.js";
 mongoose.connect(config.db.URI);
 
 const connection = mongoose.connection;
-connection.once("open", ()=> {
-    console.log("DB is connected")
-})
+connection.once("open", () => {
+  console.log("DB is connected");
+});
 connection.on("disconected", (error) => {
-    console.log("DB is disconnected + error")
-})
-connection.on("error", (error) =>{
-    console.log("error found" + error)
-})
+  console.log("DB is disconnected + error");
+});
+connection.on("error", (error) => {
+  console.log("error found" + error);
+});

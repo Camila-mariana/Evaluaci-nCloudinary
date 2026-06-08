@@ -67,7 +67,8 @@ recovery.verifyCode = async (req, res) => {
       { expiresIn: "15m" },
     );
 
-
+    res.cookie("recoveryCookie", newToken, { maxAge: 15 * 60 * 1000 });
+    return res.status(200).json("Verificado");
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({
@@ -75,3 +76,28 @@ recovery.verifyCode = async (req, res) => {
     });
   }
 };
+
+recovery.newPassword = async (req, res) => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Esta mal en algo" });
+    }
+    const passwordHash = await bcryptjs.hash(newPassword, 10);
+    await PacientesModelo.findOneAndUpdate(
+      { email: decoded.email },
+      { password: passwordHash },
+      { new: true },
+    );
+
+    res.clearCookie("recoveryCookie");
+    return res.status(200).json("Updated");
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export default recovery;
