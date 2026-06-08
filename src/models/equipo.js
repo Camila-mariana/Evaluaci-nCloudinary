@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import upload from "../../utils/cloudinaryConfig";
+import upload from "../../utils/cloudinaryConfig.js";
 const equiposSchema = new Schema(
   {
     equipmentName: {

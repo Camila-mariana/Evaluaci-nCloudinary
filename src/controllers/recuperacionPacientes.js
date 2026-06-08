@@ -36,7 +36,7 @@ recovery.requestCode = async (req, res) => {
       from: config.email.user_email,
       to: email,
       subject: "codigo de recuperación",
-      text: `para verficar, use este codigo: ${random} expira en 15 minutos`,
+      text: `para verficar, use este codigo: ${randomCode} expira en 15 minutos`,
     };
     transport.sendMail(mailOptions, (err, info) => {
       if (err) {

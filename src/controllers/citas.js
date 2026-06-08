@@ -14,27 +14,34 @@ controller.getCitas = async (req, res) => {
   }
 };
 
+controller.insertCitas = async (req, res) => {
+  const { patient_id, specialty, appoimentDate, reason, status, observations } =
+    req.body;
+  const newCita = new citasModel({
+    patient_id,
+    specialty,
+    appoimentDate,
+    reason,
+    status,
+    observations,
+  });
+  (await newCita.save(), res.json({ message: "saved" }));
+};
+
 controller.updateCitas = async (req, res) => {
   try {
-    let {
-      patient_id,
-      specialty,
-      appoimentDate,
-      reason,
-      status,
-      observations,
-    } = req.body;
-
+    let { patient_id, specialty, appoimentDate, reason, status, observations } =
+      req.body;
 
     const updateCitas = await citasModel.findByIdAndUpdate(
       req.params.id,
       {
-      patient_id,
-      specialty,
-      appoimentDate,
-      reason,
-      status,
-      observations,
+        patient_id,
+        specialty,
+        appoimentDate,
+        reason,
+        status,
+        observations,
       },
       { new: true },
     );
@@ -52,7 +59,7 @@ controller.updateCitas = async (req, res) => {
 
 controller.deletecitas = async (req, res) => {
   try {
-    const deletecitas = citasModel.findByIdAndDelete(req.params.id);
+    const deletecitas = await citasModel.findByIdAndDelete(req.params.id);
     if (!deletecitas) {
       return res.status(400).json({ message: "not found" });
     }

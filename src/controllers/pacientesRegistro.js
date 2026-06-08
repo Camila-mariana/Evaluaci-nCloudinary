@@ -1,10 +1,10 @@
 import nodemailer from "nodemailer";
-import crypto, { verify } from "crypto";
+import crypto from "crypto";
 import jsonwebtoken from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
-import { model } from "mongoose";
+import model from "../models/pacientes.js"
 import { config } from "../../config.js";
-import {v2 as Cloudinary} from Cloudinary;
+import {v2 as Cloudinary} from "cloudinary";
 
 const controller = {
   post: async (req, res) => {
@@ -18,8 +18,6 @@ const controller = {
       address,
       bloodType,
       phoneEmergencyContacts,
-      profilePhoto,
-      public_id,
       isVerified,
       loginAttemps,
       timeOut,
@@ -111,7 +109,6 @@ const controller = {
         phoneEmergencyContacts,
         profilePhoto,
         public_id,
-        isVerified,
         loginAttemps,
         timeOut,
       } = decoded;

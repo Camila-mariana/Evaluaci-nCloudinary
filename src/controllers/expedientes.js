@@ -14,6 +14,18 @@ controller.getExpedientes = async (req, res) => {
   }
 };
 
+controller.insertExpedientes = async (req, res) => {
+  const { patient_id, diagnosis, medications, medicalNotes } = req.body;
+
+  const newExpedientes = new ExpedientesModel({
+    patient_id,
+    diagnosis,
+    medications,
+    medicalNotes,
+  });
+  (await newExpedientes.save(), res.json({ message: "saved" }));
+};
+
 controller.updateExpedientes = async (req, res) => {
   try {
     let { patient_id, diagnosis, medications, medicalNotes } = req.body;
@@ -42,7 +54,9 @@ controller.updateExpedientes = async (req, res) => {
 
 controller.deleteExpedientes = async (req, res) => {
   try {
-    const deleteExpedientes = ExpedientesModel.findByIdAndDelete(req.params.id);
+    const deleteExpedientes = await ExpedientesModel.findByIdAndDelete(
+      req.params.id,
+    );
     if (!deleteExpedientes) {
       return res.status(400).json({ message: "not found" });
     }

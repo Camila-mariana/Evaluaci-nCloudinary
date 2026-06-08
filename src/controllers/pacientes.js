@@ -15,9 +15,9 @@ controller.getPacientes = async (req, res) => {
   }
 };
 
-controller.updatePaciente = async (req, res) => {
+controller.updatePacientes = async (req, res) => {
   try {
-    let {
+    const {
       name,
       lastName,
       email,
@@ -27,41 +27,36 @@ controller.updatePaciente = async (req, res) => {
       address,
       bloodType,
       phoneEmergencyContacts,
-      profilePhoto,
       isVerified,
       loginAttemps,
       timeOut,
     } = req.body;
-    name = name?.trim();
-    email = email?.trim();
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "fields required" });
-    }
-    if (birthDate > newDate() || birthDate < newDate("1901-01-01")) {
-      return res.status(400).json({ message: "invalid" });
-    }
+    const PacientesFound = await PacientesModel.findById(req.params.id);
 
-    const updatePaciente = await pacientesModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        lastName,
-        email,
-        password,
-        birthDate,
-        phone,
-        address,
-        bloodType,
-        phoneEmergencyContacts,
-        profilePhoto,
-        isVerified,
-        loginAttemps,
-        timeOut,
-      },
-      { new: true },
-    );
-    if (!updatePaciente) {
+    const updatePacientes = {
+      name,
+      lastName,
+      email,
+      password,
+      birthDate,
+      phone,
+      address,
+      bloodType,
+      phoneEmergencyContacts,
+      isVerified,
+      loginAttemps,
+      timeOut,
+    };
+    if (req.file) {
+      await cloudinary.uploader.destroy(PacientesFound.public_id);
+      updatePacientes.profilePhoto = req.file.path;
+      updatePacientes.profilePhoto = req.file.filename;
+    }
+    await PacientesModel.findByIdAndUpdate(req.params.id, updatePacientes, {
+      new: true,
+    });
+    if (!updatePacientes) {
       return res.status(400).json({ message: "not found" });
     }
     return res.status(200).json({ message: "updated" });
@@ -75,7 +70,11 @@ controller.updatePaciente = async (req, res) => {
 
 controller.deletePacientes = async (req, res) => {
   try {
-    const deletePacientes = pacientesModel.findByIdAndDelete(req.params.id);
+    const PacientesFound = await PacientesModel.findById(req.params.id);
+    await cloudinary.uploader.destroy(PacientesFound.public_id);
+    const deletePacientes = await PacientesModel.findByIdAndDelete(
+      req.params.id,
+    );
     if (!deletePacientes) {
       return res.status(400).json({ message: "not found" });
     }

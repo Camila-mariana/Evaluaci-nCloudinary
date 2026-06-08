@@ -14,6 +14,18 @@ controller.getEspecialidades = async (req, res) => {
   }
 };
 
+controller.insertEspecialidades = async (req, res) => {
+  const { specialtyName, description, isAvailable } = req.body;
+
+  const newEspecialidades = new EspecialidadesModel({
+    specialtyName,
+    description,
+    isAvailable,
+  });
+  (await newEspecialidades.save(), res.json({ message: "saved" }));
+};
+
+
 controller.updateEspecialidades = async (req, res) => {
   try {
     let { specialtyName, description, isAvailable } = req.body;
@@ -41,7 +53,7 @@ controller.updateEspecialidades = async (req, res) => {
 
 controller.deleteEspecialidades = async (req, res) => {
   try {
-    const deleteEspecialidades = EspecialidadesModel.findByIdAndDelete(
+    const deleteEspecialidades = await EspecialidadesModel.findByIdAndDelete(
       req.params.id,
     );
     if (!deleteEspecialidades) {

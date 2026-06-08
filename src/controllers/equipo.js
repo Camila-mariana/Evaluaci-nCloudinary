@@ -1,5 +1,6 @@
 import { json } from "express";
 import EquipoModel from "../models/equipo.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const controller = {};
 controller.getEquipo = async (req, res) => {
@@ -14,9 +15,38 @@ controller.getEquipo = async (req, res) => {
   }
 };
 
+controller.insertequipo = async (req, res) => {
+  const {
+    equipmentName,
+    description,
+    brand,
+    model,
+    purchaseDate,
+    maintenanceDate,
+    location,
+    status,
+    isAvailable,
+  } = req.body;
+
+  const newEquipo = new EquipoModel({
+    equipmentName,
+    description,
+    brand,
+    model,
+    purchaseDate,
+    maintenanceDate,
+    location,
+    image: req.file.path,
+    public_id: req.file.filename,
+    status,
+    isAvailable,
+  });
+  (await newEquipo.save(), res.json({ message: "saved" }));
+};
+
 controller.updateEquipo = async (req, res) => {
   try {
-    let {
+    const {
       equipmentName,
       description,
       brand,
@@ -24,27 +54,31 @@ controller.updateEquipo = async (req, res) => {
       purchaseDate,
       maintenanceDate,
       location,
-      image,
       status,
       isAvailable,
     } = req.body;
 
-    const updateEquipo = await EquipoModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        equipmentName,
-        description,
-        brand,
-        model,
-        purchaseDate,
-        maintenanceDate,
-        location,
-        image,
-        status,
-        isAvailable,
-      },
-      { new: true },
-    );
+    const equipoFound = await EquipoModel.findById(req.params.id);
+
+    const updateEquipo = {
+      equipmentName,
+      description,
+      brand,
+      model,
+      purchaseDate,
+      maintenanceDate,
+      location,
+      status,
+      isAvailable,
+    };
+    if (req.file) {
+      await cloudinary.uploader.destroy(equipoFound.public_id);
+      updateEquipo.image = req.file.path;
+      updateEquipo.image = req.file.filename;
+    }
+    await EquipoModel.findByIdAndUpdate(req.params.id, updateEquipo, {
+      new: true,
+    });
     if (!updateEquipo) {
       return res.status(400).json({ message: "not found" });
     }
@@ -59,7 +93,9 @@ controller.updateEquipo = async (req, res) => {
 
 controller.deleteEquipo = async (req, res) => {
   try {
-    const deleteEquipo = EquipoModel.findByIdAndDelete(req.params.id);
+    const equipoFound = await EquipoModel.findById(req.params.id);
+    await cloudinary.uploader.destroy(equipoFound.public_id);
+    const deleteEquipo = await EquipoModel.findByIdAndDelete(req.params.id);
     if (!deleteEquipo) {
       return res.status(400).json({ message: "not found" });
     }
